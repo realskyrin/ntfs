@@ -5,8 +5,7 @@ import android.content.res.Configuration
 import java.util.*
 
 object LocaleUtils {
-    // [AppPrefs] is sharedpreferences or datastore
-    fun setLocale(c: Context, languageZh: Boolean) = updateResources(c, if (languageZh) "zh" else "en") //use locale codes
+    fun setLocale(c: Context, languageZh: Boolean) = updateResources(c, if (languageZh) "zh" else "en")
 
     private fun updateResources(context: Context, language: String) {
         context.resources.apply {

@@ -141,7 +141,7 @@ fun AppBarPreview() {
     NtfsTheme {
         AppBar(
             languageZh = true,
-            onDarkThemeClick = { },
+            onDarkThemeClick = {},
             onLanguageClick = {},
             onSettingsClick = {})
     }
