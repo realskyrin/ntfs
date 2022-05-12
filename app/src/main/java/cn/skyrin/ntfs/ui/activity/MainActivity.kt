@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -88,21 +87,36 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Preview
+@Composable
+fun DevItemPreview() {
+    NtfsTheme {
+    }
+}
+
 @Composable
 fun MyApp(viewModel: MainViewModel) {
     val ctx = LocalContext.current
     val languageZh by viewModel.languageZh.observeAsState(initial = store.languageZh)
     val notifications by viewModel.ongoingNotifications.observeAsState(initial = listOf())
+    val connected by isNotificationListenerConnected.observeAsState(initial = false)
     LocaleUtils.setLocale(ctx, languageZh)
 
+    HostPage(connected, notifications, viewModel, ctx, languageZh)
+}
+
+@Composable
+private fun HostPage(
+    connected: Boolean,
+    notifications: List<OngoingNotification>,
+    viewModel: MainViewModel,
+    ctx: Context,
+    languageZh: Boolean,
+) {
     Box(Modifier.fillMaxSize()) {
-        val connected by isNotificationListenerConnected.observeAsState(initial = false)
         if (connected) {
             Notifications(
                 notifications,
-                refreshAction = {
-                    sendRefreshIntent()
-                }
             ) { uid, key ->
                 sendSnoozeIntent(uid, key)
                 viewModel.updateSnoozeStatus(uid, true, Date(), snoozeDurationMs)
@@ -127,6 +141,22 @@ fun MyApp(viewModel: MainViewModel) {
                 ctx.openNotificationServiceSettings()
             }
         )
+
+        FloatingActionButton(
+            onClick = {
+                sendRefreshIntent()
+                ctx.showToast(R.string.refresh_success)
+            },
+            backgroundColor = MaterialTheme.colors.background,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Refresh,
+                contentDescription = "refresh",
+            )
+        }
     }
 }
 
@@ -199,7 +229,6 @@ fun AppBar(
 @Composable
 fun Notifications(
     ntfs: List<OngoingNotification> = emptyList(),
-    refreshAction: (() -> Unit)? = null,
     snoozeAction: (uid: String, key: String) -> Unit
 ) {
     val ctx = LocalContext.current
@@ -216,12 +245,6 @@ fun Notifications(
             item {
                 NtfhCard {
                     openNtfh(ctx)
-                }
-            }
-            item {
-                RefreshCard {
-                    refreshAction?.invoke()
-                    ctx.showToast(R.string.refresh_success)
                 }
             }
             item {
@@ -252,34 +275,6 @@ fun NtfhCard(onClick: () -> Unit) {
             contentDescription = "通知助手",
             Modifier.clickable { onClick() }
         )
-    }
-}
-
-@Composable
-fun RefreshCard(onClick: () -> Unit) {
-    Card(
-        backgroundColor = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(
-            vertical = 4.dp, horizontal = 8.dp
-        )
-    ) {
-        Text(
-            text = stringResource(R.string.refresh),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth()
-                .clickable {
-                    onClick()
-                })
-    }
-}
-
-@Preview
-@Composable
-fun NtfhCardPreview() {
-    NtfsTheme {
-        RefreshCard {}
     }
 }
 
