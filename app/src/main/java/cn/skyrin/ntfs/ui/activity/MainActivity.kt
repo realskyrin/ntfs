@@ -420,7 +420,10 @@ fun PermissionScreen(onContinueClicked: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(stringResource(R.string.need_permission_tips))
+            Text(
+                stringResource(R.string.need_permission_tips),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
             Button(
                 modifier = Modifier.padding(vertical = 24.dp),
                 onClick = onContinueClicked

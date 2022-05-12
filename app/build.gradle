@@ -11,8 +11,8 @@ android {
         applicationId "cn.skyrin.ntfs"
         minSdk 26
         targetSdk 32
-        versionCode 110
-        versionName "1.10"
+        versionCode 120
+        versionName "1.20"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
