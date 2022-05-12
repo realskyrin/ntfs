@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="just_now">Just now\u00a0</string>
+    <string name="yesterday">Yesterday\u00a0</string>
+    <string name="tow_days_ago">2 days ago\u00a0</string>
+    <string name="early_morning">Early morning\u00a0</string>
+    <string name="am">AM\u00a0</string>
+    <string name="pm">PM\u00a0</string>
+    <string name="tomorrow">Tomorrow\u00a0</string>
+    <string name="tow_days_later">2 days later\u00a0</string>
+    <string name="evening">Evening\u00a0</string>
+    <string name="base_date_format">yyyy-MM-dd HH:00</string>
+    <string name="date_format">yyyy-MM-dd HH:mm</string>
+    <string name="date_in_year_format">MM-dd HH:mm</string>
+    <string name="day_format">yyyy-MM-dd</string>
+    <string name="day_in_year_format">MM-dd</string>
+    <string name="sunday">Sunday</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="activity_not_found">未找到合适的 Activity</string>
+</resources>

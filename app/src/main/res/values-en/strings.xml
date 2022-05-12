@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Snooze ongoing notification</string>
+    <string name="show_less">Show less</string>
+    <string name="show_more">Show more</string>
+    <string name="snoozed">Snoozed</string>
+    <string name="un_snoozed">Un Snoozed</string>
+    <string name="no_content_to_show">No content to show</string>
+    <string name="reboot_to_un_snoozed">In snooze, it will automatically resume in %1s, restart the device to resume immediately</string>
+    <string name="showing">Showing</string>
+    <string name="need_permission_tips">Requires permission to use notifications for normal use</string>
+    <string name="get_access">Authorize</string>
+    <string name="refresh">Refresh</string>
+    <string name="refresh_success">Refresh successful</string>
+</resources>

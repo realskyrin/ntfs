@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">固定通知休眠</string>
+    <string name="show_less">Show less</string>
+    <string name="show_more">Show more</string>
+    <string name="snoozed">已休眠</string>
+    <string name="un_snoozed">未休眠</string>
+    <string name="no_content_to_show">没有可显示的内容</string>
+    <string name="reboot_to_un_snoozed">休眠中，将于%1s自动恢复，重启设备可立即恢复</string>
+    <string name="showing">正显示</string>
+    <string name="need_permission_tips">需要授予通知使用权才能正常使用</string>
+    <string name="get_access">去授权</string>
+    <string name="refresh">刷新一下</string>
+    <string name="refresh_success">已刷新</string>
+</resources>
