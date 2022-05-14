@@ -2,6 +2,7 @@ package cn.skyrin.ntfs.ui.activity
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -87,10 +88,52 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview
+@Preview(
+    showBackground = true,
+    uiMode = UI_MODE_NIGHT_NO,
+    name = "DevItemPreview"
+)
 @Composable
 fun DevItemPreview() {
     NtfsTheme {
+        HostPage(
+            connected = true,
+            notifications = listOf(
+                OngoingNotification(
+                    id = 0,
+                    uid = "uidaoisduasdasduad",
+                    key = "key",
+                    title = "微信通知",
+                    text = "微信通知正在后台运行",
+                    pkg = "com.tencent.mm",
+                    label = "微信",
+                    channelId = "10001",
+                    isSnoozed = true,
+                    snoozeAt = Date(),
+                    snoozeDurationMs = 5000,
+                    recordAt = Date(),
+                    updateAt = Date(),
+                ),
+                OngoingNotification(
+                    id = 1,
+                    uid = "uidaoisduasdasduad",
+                    key = "key",
+                    title = "微信通知",
+                    text = "微信通知正在后台运行",
+                    pkg = "com.tencent.mm",
+                    label = "微信",
+                    channelId = "10001",
+                    isSnoozed = true,
+                    snoozeAt = Date(),
+                    snoozeDurationMs = 5000,
+                    recordAt = Date(),
+                    updateAt = Date(),
+                )
+            ),
+            viewModel = null,
+            ctx = LocalContext.current,
+            languageZh = true,
+        )
     }
 }
 
@@ -109,7 +152,7 @@ fun MyApp(viewModel: MainViewModel) {
 private fun HostPage(
     connected: Boolean,
     notifications: List<OngoingNotification>,
-    viewModel: MainViewModel,
+    viewModel: MainViewModel?,
     ctx: Context,
     languageZh: Boolean,
 ) {
@@ -119,7 +162,7 @@ private fun HostPage(
                 notifications,
             ) { uid, key ->
                 sendSnoozeIntent(uid, key)
-                viewModel.updateSnoozeStatus(uid, true, Date(), snoozeDurationMs)
+                viewModel?.updateSnoozeStatus(uid, true, Date(), snoozeDurationMs)
             }
         } else {
             PermissionScreen {
@@ -131,11 +174,11 @@ private fun HostPage(
             languageZh = languageZh,
             onDarkThemeClick = {
                 store.darkTheme = store.darkTheme.not()
-                viewModel.darkTheme.postValue(store.darkTheme)
+                viewModel?.darkTheme?.postValue(store.darkTheme)
             },
             onLanguageClick = {
                 store.languageZh = store.languageZh.not()
-                viewModel.languageZh.postValue(store.languageZh)
+                viewModel?.languageZh?.postValue(store.languageZh)
             },
             onSettingsClick = {
                 ctx.openNotificationServiceSettings()
