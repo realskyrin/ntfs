@@ -34,14 +34,30 @@ interface OngoingNotificationDao {
     @Query("UPDATE OngoingNotification SET update_at= :updateAt WHERE uid =:uid")
     suspend fun update(uid: String, updateAt: Date): Int
 
-    @Query("UPDATE OngoingNotification SET snooze_duration_ms= :snoozeDurationMs,snooze_at= :snoozeAt,is_snoozed= :isSnoozed WHERE uid =:uid")
-    suspend fun update(uid: String, isSnoozed: Boolean, snoozeAt: Date, snoozeDurationMs: Long): Int
+    @Query("UPDATE OngoingNotification SET snooze_duration_ms= :snoozeDurationMs,snooze_at= :snoozeAt,update_at= :updateAt,is_snoozed= :isSnoozed WHERE uid =:uid")
+    suspend fun update(
+        uid: String,
+        isSnoozed: Boolean,
+        snoozeDurationMs: Long,
+        snoozeAt: Date,
+        updateAt: Date,
+    ): Int
+
+    @Query("UPDATE OngoingNotification SET is_snoozed= :isSnoozed,update_at= :updateAt WHERE uid =:uid")
+    suspend fun update(
+        uid: String,
+        isSnoozed: Boolean,
+        updateAt: Date,
+    ): Int
 
     @Query("select * from OngoingNotification order by is_snoozed desc")
     fun queryFlow(): Flow<List<OngoingNotification>>
 
     @Query("select * from OngoingNotification WHERE uid =:uid")
     fun query(uid: String): OngoingNotification?
+
+    @Query("select * from OngoingNotification WHERE update_at < :updateBefore")
+    fun query(updateBefore: Long): List<OngoingNotification>
 
     @Query("select count(*) from OngoingNotification")
     fun size(): Int

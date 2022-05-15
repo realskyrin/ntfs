@@ -8,9 +8,9 @@ import androidx.room.TypeConverter
 import java.util.*
 
 @Keep
-@Entity(tableName = "OngoingNotification")
+@Entity(tableName = "OngoingNotification", primaryKeys = ["id", "uid"],)
 data class OngoingNotification(
-    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo
     var id: Long,
     @ColumnInfo
     var uid: String,

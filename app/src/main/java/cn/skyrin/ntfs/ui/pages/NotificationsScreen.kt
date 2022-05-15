@@ -15,32 +15,33 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Snooze
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import cn.skyrin.common.compat.getDrawableFromPkgName
+import cn.skyrin.common.util.getDate
 import cn.skyrin.common.util.getDay
 import cn.skyrin.ntfs.R
 import cn.skyrin.ntfs.data.bean.OngoingNotification
 import cn.skyrin.ntfs.ui.helper.DrawableWrapper
 import cn.skyrin.ntfs.ui.theme.NtfsTheme
+import cn.skyrin.ntfs.util.toast.showToast
 import java.util.*
 
 @Composable
 fun NotificationsScreen(
     ntfs: List<OngoingNotification> = emptyList(),
-    snoozeAction: (uid: String, key: String) -> Unit
+    snoozeAction: (uid: String, key: String, snoozeDuration: Long) -> Unit
 ) {
     val ctx = LocalContext.current
     Surface(color = MaterialTheme.colors.background) {
@@ -90,12 +91,15 @@ fun NtfsCardPreview() {
             recordAt = Date(),
             updateAt = Date(),
         )
-        NtfsCard(notification = notification, snoozeAction = { _, _ -> })
+        NtfsCard(notification = notification, snoozeAction = { _, _, _ -> })
     }
 }
 
 @Composable
-fun NtfsCard(notification: OngoingNotification, snoozeAction: (uid: String, key: String) -> Unit) {
+fun NtfsCard(
+    notification: OngoingNotification,
+    snoozeAction: (uid: String, key: String, snoozeDuration: Long) -> Unit
+) {
     Card(
         backgroundColor = MaterialTheme.colors.primary,
         modifier = Modifier.padding(
@@ -109,9 +113,12 @@ fun NtfsCard(notification: OngoingNotification, snoozeAction: (uid: String, key:
 @Composable
 fun NotificationCardContent(
     notification: OngoingNotification,
-    snoozeAction: (uid: String, key: String) -> Unit
+    snoozeAction: (uid: String, key: String, snoozeDuration: Long) -> Unit
 ) {
+    val ctx = LocalContext.current
     var expanded by rememberSaveable { mutableStateOf(false) }
+    var expandedDropMenu by remember { mutableStateOf(false) }
+
     Surface(
         color = MaterialTheme.colors.primary,
     ) {
@@ -153,9 +160,9 @@ fun NotificationCardContent(
                         val resumeDate =
                             Date(System.currentTimeMillis() + notification.snoozeDurationMs)
                         Text(
-                            text = stringResource(
+                            text = if (notification.snoozeDurationMs == 0L) stringResource(id = R.string.snoozed) else stringResource(
                                 R.string.reboot_to_un_snoozed,
-                                getDay(resumeDate)
+                                getDate(resumeDate)
                             )
                         )
                     } else {
@@ -164,15 +171,29 @@ fun NotificationCardContent(
                 }
             }
 
-            IconButton(onClick = {
-                if (notification.isSnoozed.not()) {
-                    snoozeAction(notification.uid, notification.key)
+            IconButton(
+                onClick = {
+                    if (notification.isSnoozed.not()) {
+                        expandedDropMenu = true
+                    } else {
+                        ctx.showToast(R.string.snoozed_tips)
+                    }
                 }
-            }) {
+            ) {
                 Icon(
                     imageVector = if (notification.isSnoozed) Icons.Filled.Snooze else Icons.Filled.NotificationsActive,
                     contentDescription = stringResource(R.string.snoozed),
                 )
+
+                MyDropdownMenu(
+                    expanded = expandedDropMenu,
+                    offset = DpOffset(10.dp, 0.dp),
+                    onDismissRequest = {
+                        expandedDropMenu = false
+                    }) { snoozeDurationMs, textId ->
+                    snoozeAction(notification.uid, notification.key, snoozeDurationMs)
+                    ctx.showToast(textId)
+                }
             }
 
             IconButton(
@@ -191,7 +212,74 @@ fun NotificationCardContent(
 
 @Preview
 @Composable
-fun NtfhCardPreview(){
+fun MyDropdownMenuPreview() {
+    NtfsTheme {
+        MyDropdownMenu(onDismissRequest = {
+
+        }) { _, _ ->
+
+        }
+    }
+}
+
+@Composable
+fun MyDropdownMenu(
+    expanded: Boolean = false,
+    offset: DpOffset = DpOffset.Zero,
+    onDismissRequest: () -> Unit,
+    onClick: (Long, Int) -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        offset = offset,
+        onDismissRequest = { onDismissRequest() }
+    ) {
+        snoozeDurationMsMap.forEach { (k, v) ->
+            SnoozeDurationItem(
+                durationText = stringResource(id = k),
+                onClick = {
+                    onClick(v, k)
+                    onDismissRequest()
+                }
+            )
+        }
+    }
+}
+
+const val snoozeDurationDays360: Long = 1000 * 60 * 60 * 24 * 360L // 360 days
+const val snoozeDurationDays30: Long = 1000 * 60 * 60 * 24 * 30L // 30 days
+const val snoozeDurationDays15: Long = 1000 * 60 * 60 * 24 * 15L // 15 days
+const val snoozeDurationDays7: Long = 1000 * 60 * 60 * 24 * 7L // 7 days
+const val snoozeDurationDays1: Long = 1000 * 60 * 60 * 24 // 1 days
+const val snoozeDurationHour8: Long = 1000 * 60 * 60 * 8 // 8 hour
+const val snoozeDurationHour1: Long = 1000 * 60 * 60 // 1 hour
+const val snoozeDurationMin30: Long = 1000 * 60 * 30 // 30 minute
+const val snoozeDurationMin1: Long = 1000 * 60 // 1 minute
+
+val snoozeDurationMsMap = mapOf(
+    R.string.days_360 to snoozeDurationDays360,
+    R.string.days_30 to snoozeDurationDays30,
+    R.string.days_15 to snoozeDurationDays15,
+    R.string.days_7 to snoozeDurationDays7,
+    R.string.days_1 to snoozeDurationDays1,
+    R.string.hour_8 to snoozeDurationHour8,
+    R.string.hour_1 to snoozeDurationHour1,
+    R.string.min_30 to snoozeDurationMin30,
+    R.string.min_1 to snoozeDurationMin1
+)
+
+@Composable
+fun SnoozeDurationItem(durationText: String, onClick: () -> Unit) {
+    DropdownMenuItem(onClick = { onClick() }) {
+        Icon(imageVector = Icons.Filled.Snooze, contentDescription = "Snooze")
+        Spacer(modifier = Modifier.padding(8.dp))
+        Text(text = durationText)
+    }
+}
+
+@Preview
+@Composable
+fun NtfhCardPreview() {
     NtfsTheme {
         NtfhCard {}
     }

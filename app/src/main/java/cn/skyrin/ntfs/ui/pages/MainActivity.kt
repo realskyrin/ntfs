@@ -113,9 +113,7 @@ fun openNtfh(ctx: Context) {
     }
 }
 
-const val snoozeDurationMs: Long = 1000 * 60 * 60 * 24 * 30L // 30 days
-
-fun sendSnoozeIntent(uid: String, key: String) {
+fun sendSnoozeIntent(uid: String, key: String, snoozeDurationMs: Long) {
     val intent = Intent(Constants.ACTION_SNOOZE_NOTIFICATION)
     intent.putExtra(Constants.EXTRA_NOTIFICATION_UID, uid)
     intent.putExtra(Constants.EXTRA_NOTIFICATION_KEY, key)

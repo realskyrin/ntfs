@@ -4,7 +4,8 @@ import cn.skyrin.ntfs.data.bean.OngoingNotification
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
-class OngoingNotificationRepositoryImpl(private val dao: OngoingNotificationDao): OngoingNotificationDao {
+class OngoingNotificationRepositoryImpl(private val dao: OngoingNotificationDao) :
+    OngoingNotificationDao {
     override suspend fun insert(notification: OngoingNotification): Long {
         return dao.insert(notification)
     }
@@ -44,10 +45,15 @@ class OngoingNotificationRepositoryImpl(private val dao: OngoingNotificationDao)
     override suspend fun update(
         uid: String,
         isSnoozed: Boolean,
+        snoozeDurationMs: Long,
         snoozeAt: Date,
-        snoozeDurationMs: Long
+        updateAt: Date,
     ): Int {
-        return dao.update(uid, isSnoozed, snoozeAt,snoozeDurationMs)
+        return dao.update(uid, isSnoozed, snoozeDurationMs, snoozeAt, updateAt)
+    }
+
+    override suspend fun update(uid: String, isSnoozed: Boolean, updateAt: Date): Int {
+        return dao.update(uid, isSnoozed, updateAt)
     }
 
     override fun queryFlow(): Flow<List<OngoingNotification>> {
@@ -56,6 +62,10 @@ class OngoingNotificationRepositoryImpl(private val dao: OngoingNotificationDao)
 
     override fun query(uid: String): OngoingNotification? {
         return dao.query(uid)
+    }
+
+    override fun query(updateBefore: Long): List<OngoingNotification> {
+        return dao.query(updateBefore)
     }
 
     override fun size(): Int {

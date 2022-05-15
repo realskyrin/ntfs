@@ -19,9 +19,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateSnoozeStatus(
         uid: String,
         isSnoozed: Boolean,
-        date: Date,
         snoozeDurationMs: Long,
+        date: Date,
     ) = viewModelScope.launch(Dispatchers.IO) {
-        Repositories.ongoingNotificationRepository.update(uid, isSnoozed, date, snoozeDurationMs = snoozeDurationMs)
+        Repositories.ongoingNotificationRepository.update(
+            uid,
+            isSnoozed,
+            snoozeDurationMs = snoozeDurationMs,
+            snoozeAt = date,
+            updateAt = date,
+        )
     }
 }

@@ -9,15 +9,15 @@ import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
     primary = Navy,
-    onPrimary = Chartreuse,
-    surface = Blue,
-    onSurface = Navy,
+    onPrimary = BeanPasteGreen,
+    surface = Navy.copy(alpha = 1.0f),
+    onSurface = Color.White,
 )
 
 private val LightColorPalette = lightColors(
     primary = BeanPasteGreen,
     onPrimary = Navy,
-    surface = Blue,
+    surface = BeanPasteGreen.copy(alpha = 1.0f),
     onSurface = Color.White,
 
     /* Other default colors to override

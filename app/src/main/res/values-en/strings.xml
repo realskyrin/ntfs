@@ -11,4 +11,14 @@
     <string name="get_access">Authorize</string>
     <string name="refresh">Refresh</string>
     <string name="refresh_success">Refresh successful</string>
+    <string name="days_360">1 year</string>
+    <string name="days_30">1 month</string>
+    <string name="days_15">15 days</string>
+    <string name="days_7">1 week</string>
+    <string name="days_1">1 day</string>
+    <string name="hour_8">8 hours</string>
+    <string name="hour_1">1 hour</string>
+    <string name="min_30">30 minutes</string>
+    <string name="min_1">1 minute</string>
+    <string name="snoozed_tips">In snooze, restart the device to resume immediately</string>
 </resources>

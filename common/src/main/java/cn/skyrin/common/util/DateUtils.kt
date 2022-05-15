@@ -107,7 +107,7 @@ fun getBaseDate(date: Date): String {
 }
 
 fun getDate(date: Date): String {
-    val sdf = SimpleDateFormat("yyyy年MM月dd日 HH:mm", Locale.getDefault())
+    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
     return sdf.format(date)
 }
 

@@ -39,9 +39,9 @@ fun HostScreen(
         if (connected) {
             NotificationsScreen(
                 notifications,
-            ) { uid, key ->
-                sendSnoozeIntent(uid, key)
-                viewModel?.updateSnoozeStatus(uid, true, Date(), snoozeDurationMs)
+            ) { uid, key, snoozeDurationMs ->
+                sendSnoozeIntent(uid, key, snoozeDurationMs)
+                viewModel?.updateSnoozeStatus(uid, true, snoozeDurationMs, Date())
             }
         } else {
             PermissionScreen {

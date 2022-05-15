@@ -35,13 +35,7 @@ class NtfsService : NotificationListenerService() {
         collectAllOngoingNotifications()
     }
 
-    private fun collectAllOngoingNotifications(clear: Boolean = false) {
-        if (clear){
-            Global.launch {
-                appDatabase.ongoingNotificationDao().delete()
-            }
-        }
-
+    private fun collectAllOngoingNotifications(refresh: Boolean = false) {
         activeNotifications.forEach {
             if (isOngoingNotification(it)) {
                 collectNotifications(it, false)
@@ -51,6 +45,15 @@ class NtfsService : NotificationListenerService() {
         snoozedNotifications.forEach {
             if (isOngoingNotification(it)) {
                 collectNotifications(it, true)
+            }
+        }
+
+
+        if (refresh) {
+            Global.launch {
+                // 删除未更新的通知
+                val expired = appDatabase.ongoingNotificationDao().query(updateBefore = latestUpdateTime.time)
+                appDatabase.ongoingNotificationDao().delete(expired)
             }
         }
     }
@@ -90,6 +93,8 @@ class NtfsService : NotificationListenerService() {
         }
     }
 
+    // 最新更新时间
+    private val latestUpdateTime = Date()
     private fun collectNotifications(
         sbn: StatusBarNotification,
         isSnoozed: Boolean = false,
@@ -101,7 +106,7 @@ class NtfsService : NotificationListenerService() {
         val uid = generateNotificationUid(key, title, text)
 
         if (appDatabase.ongoingNotificationDao().exist(uid) > 0) {
-            appDatabase.ongoingNotificationDao().update(uid, isSnoozed, Date(), 0L)
+            appDatabase.ongoingNotificationDao().update(uid, isSnoozed, updateAt = latestUpdateTime)
         } else {
             OngoingNotification(
                 id = 0,
@@ -165,7 +170,7 @@ class NtfsService : NotificationListenerService() {
     inner class SnoozeReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if (intent.action == Constants.ACTION_REFRESH_NOTIFICATION) {
-                collectAllOngoingNotifications(clear = true)
+                collectAllOngoingNotifications(refresh = true)
             }
 
             if (intent.action == Constants.ACTION_SNOOZE_NOTIFICATION) {
