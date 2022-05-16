@@ -97,6 +97,8 @@ class NtfsService : NotificationListenerService() {
         val text = sbn.notification.extras.get("android.text").toString()
         val uid = generateNotificationUid(sbn.key, title, text)
 
+        // mutex.withLock 解决并发问题
+        // manualSnoozedNotificationUid.remove(uid) 有可能会被执行2次，导致误删
         mutex.withLock {
             Timber.d("removeOngoingNotification: $uid")
             // 如果是手动休眠引起的 remove，则不删除
