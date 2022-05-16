@@ -102,4 +102,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
     }
+
+    // 数据库迁移指南
+    // https://medium.com/androiddevelopers/understanding-migrations-with-room-f01e04b07929
 }

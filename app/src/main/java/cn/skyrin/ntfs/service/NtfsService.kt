@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import cn.skyrin.common.Global
 import cn.skyrin.common.compat.getAppName
 import cn.skyrin.common.util.md5
 import cn.skyrin.ntfs.R
@@ -14,12 +13,23 @@ import cn.skyrin.ntfs.app.Constants
 import cn.skyrin.ntfs.app.isNotificationListenerConnected
 import cn.skyrin.ntfs.data.AppDatabase
 import cn.skyrin.ntfs.data.bean.OngoingNotification
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import timber.log.Timber
 import java.util.*
 
 class NtfsService : NotificationListenerService() {
     private val appDatabase by lazy { AppDatabase.getInstance(this) }
     private val snoozeReceiver by lazy { SnoozeReceiver() }
+    private val jobs = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + jobs)
+    private val mutex = Mutex()
+
+    override fun onDestroy() {
+        super.onDestroy()
+        jobs.cancel()
+    }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
@@ -50,9 +60,11 @@ class NtfsService : NotificationListenerService() {
 
 
         if (refresh) {
-            Global.launch {
-                // 删除未更新的通知
-                val expired = appDatabase.ongoingNotificationDao().query(updateBefore = latestUpdateTime.time)
+            scope.launch {
+                delay(1000)
+                // 删除未更新的通知，即不存在的通知
+                val expired =
+                    appDatabase.ongoingNotificationDao().query(updateBefore = Date().time - 1500)
                 appDatabase.ongoingNotificationDao().delete(expired)
             }
         }
@@ -80,25 +92,27 @@ class NtfsService : NotificationListenerService() {
         }
     }
 
-    private fun removeOngoingNotification(sbn: StatusBarNotification) = Global.launch {
+    private fun removeOngoingNotification(sbn: StatusBarNotification) = scope.launch {
         val title = sbn.notification.extras.get("android.title").toString()
         val text = sbn.notification.extras.get("android.text").toString()
         val uid = generateNotificationUid(sbn.key, title, text)
 
-        // 如果是手动休眠引起的 remove，则不删除
-        if (manualSnoozedNotificationUid.contains(uid)) {
-            manualSnoozedNotificationUid.remove(uid)
-        } else {
-            appDatabase.ongoingNotificationDao().delete(uid)
+        mutex.withLock {
+            Timber.d("removeOngoingNotification: $uid")
+            // 如果是手动休眠引起的 remove，则不删除
+            if (manualSnoozedNotificationUid.contains(uid)) {
+                manualSnoozedNotificationUid.remove(uid)
+            } else {
+                Timber.d("appDatabase.ongoingNotificationDao().delete(uid): $uid")
+                appDatabase.ongoingNotificationDao().delete(uid)
+            }
         }
     }
 
-    // 最新更新时间
-    private val latestUpdateTime = Date()
     private fun collectNotifications(
         sbn: StatusBarNotification,
         isSnoozed: Boolean = false,
-    ) = Global.launch {
+    ) = scope.launch {
 
         val key = sbn.key
         val title = sbn.notification.extras.get("android.title").toString()
@@ -106,7 +120,13 @@ class NtfsService : NotificationListenerService() {
         val uid = generateNotificationUid(key, title, text)
 
         if (appDatabase.ongoingNotificationDao().exist(uid) > 0) {
-            appDatabase.ongoingNotificationDao().update(uid, isSnoozed, updateAt = latestUpdateTime)
+            if (isSnoozed) {
+                appDatabase.ongoingNotificationDao()
+                    .update(uid, isSnoozed, updateAt = Date())
+            } else {
+                appDatabase.ongoingNotificationDao()
+                    .update(uid, isSnoozed, 0L, updateAt = Date())
+            }
         } else {
             OngoingNotification(
                 id = 0,
@@ -179,6 +199,7 @@ class NtfsService : NotificationListenerService() {
                 val snoozeDurationMs = intent.getLongExtra(Constants.EXTRA_SNOOZE_DURATION_MS, 0)
 
                 kotlin.runCatching {
+                    Timber.d("manualSnoozedNotificationUid.add(uid4Snooze)")
                     manualSnoozedNotificationUid.add(uid4Snooze)
                     snoozeNotification(key4Snooze, snoozeDurationMs)
                 }

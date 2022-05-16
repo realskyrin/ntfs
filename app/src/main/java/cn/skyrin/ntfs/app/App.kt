@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import cn.skyrin.common.Global
 import cn.skyrin.common.GlobalMain
+import cn.skyrin.ntfs.BuildConfig
 import cn.skyrin.ntfs.data.Repositories
+import timber.log.Timber
 
 class App : Application(){
     override fun onCreate() {
@@ -12,6 +14,9 @@ class App : Application(){
         Global.init(this)
         GlobalMain.init(this)
         Repositories.init(this)
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 }
 

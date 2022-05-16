@@ -50,6 +50,14 @@ interface OngoingNotificationDao {
         updateAt: Date,
     ): Int
 
+    @Query("UPDATE OngoingNotification SET is_snoozed= :isSnoozed,snooze_duration_ms= :snoozeDurationMs,update_at= :updateAt WHERE uid =:uid")
+    suspend fun update(
+        uid: String,
+        isSnoozed: Boolean,
+        snoozeDurationMs: Long,
+        updateAt: Date,
+    ): Int
+
     @Query("select * from OngoingNotification order by is_snoozed desc")
     fun queryFlow(): Flow<List<OngoingNotification>>
 

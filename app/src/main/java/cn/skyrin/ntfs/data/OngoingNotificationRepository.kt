@@ -56,6 +56,15 @@ class OngoingNotificationRepositoryImpl(private val dao: OngoingNotificationDao)
         return dao.update(uid, isSnoozed, updateAt)
     }
 
+    override suspend fun update(
+        uid: String,
+        isSnoozed: Boolean,
+        snoozeDurationMs: Long,
+        updateAt: Date
+    ): Int {
+        return dao.update(uid, isSnoozed, snoozeDurationMs, updateAt)
+    }
+
     override fun queryFlow(): Flow<List<OngoingNotification>> {
         return dao.queryFlow()
     }

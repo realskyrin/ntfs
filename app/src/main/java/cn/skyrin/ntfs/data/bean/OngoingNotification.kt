@@ -42,7 +42,7 @@ data class OngoingNotification(
             left: OngoingNotification,
             right: OngoingNotification,
         ): Boolean {
-            return right.id == left.id
+            return right.uid == left.uid
         }
 
         fun areContentsTheSame(
