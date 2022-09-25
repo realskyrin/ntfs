@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Snooze
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
@@ -36,6 +37,7 @@ import cn.skyrin.ntfs.data.bean.OngoingNotification
 import cn.skyrin.ntfs.ui.helper.DrawableWrapper
 import cn.skyrin.ntfs.ui.theme.NtfsTheme
 import cn.skyrin.ntfs.util.toast.showToast
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import java.util.*
 
 @Composable
@@ -137,19 +139,29 @@ fun NotificationCardContent(
                     .padding(8.dp)
                     .weight(1f)
             ) {
-                Row {
-                    DrawableWrapper(
-                        drawableStart = LocalContext.current.getDrawableFromPkgName(notification.pkg)
-                            ?.toBitmap(width = 48, height = 48)?.asImageBitmap(),
-                    ) {
-                        Text(
-                            text = "${notification.title}",
-                            style = MaterialTheme.typography.body1.copy(
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                        )
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Image(
+                        modifier = Modifier.size(24.dp),
+                        painter = rememberDrawablePainter(ctx.getDrawableFromPkgName(notification.pkg)),
+                        contentDescription = "app icon",
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "${notification.title}",
+                        style = MaterialTheme.typography.body1.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        maxLines = 1,
+                        softWrap = false,
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "${notification.text}", style = MaterialTheme.typography.body1
                 )
@@ -158,7 +170,11 @@ fun NotificationCardContent(
                     Spacer(modifier = Modifier.height(8.dp))
                     if (notification.isSnoozed) {
                         val resumeDate =
-                            Date(System.currentTimeMillis() + notification.snoozeDurationMs)
+                            Date(
+                                (notification.snoozeAt?.time
+                                    ?: System.currentTimeMillis())
+                                        + notification.snoozeDurationMs
+                            )
                         Text(
                             text = if (notification.snoozeDurationMs == 0L) stringResource(id = R.string.snoozed) else stringResource(
                                 R.string.reboot_to_un_snoozed,
@@ -190,7 +206,8 @@ fun NotificationCardContent(
                     offset = DpOffset(10.dp, 0.dp),
                     onDismissRequest = {
                         expandedDropMenu = false
-                    }) { snoozeDurationMs, textId ->
+                    }
+                ) { snoozeDurationMs, textId ->
                     snoozeAction(notification.uid, notification.key, snoozeDurationMs)
                     ctx.showToast(textId)
                 }
