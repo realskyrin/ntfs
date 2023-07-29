@@ -66,19 +66,6 @@ object URL {
     const val MARKET_NTFH_APP_SCHEME = "market://details?id=$NTFH_APP_ID"
     val MARKET_ID = "com.coolapk.market"
     const val NTFH_APP_URL = "https://www.coolapk.com/apk/287887"
-
-    private const val BASE_URL = "https://skyrin-update.oss-cn-beijing.aliyuncs.com/ntfh/"
-
-    var BASE_URL_PREVIEW = "$BASE_URL${Market.Preview}/release/"
-    const val SKYRIN_BLOG_URL = "https://blog.skyrin.cn/"
-    const val NTFH_SOURCE_PATH = "https://blog.skyrin.cn/ntfh/"
-    var sponsor =
-        "${SKYRIN_BLOG_URL}sponsor/"
-    var ruleManual =
-        "${SKYRIN_BLOG_URL}ntfh-rule-manual/"
-    var usefulRules = "${SKYRIN_BLOG_URL}ntfh-useful-rules/"
-    var updateLog = "${NTFH_SOURCE_PATH}update-log.html"
-    var wechatGroupQRCode = "${NTFH_SOURCE_PATH}ntfh-wechat-group.html"
 }
 
 

@@ -72,7 +72,7 @@ fun NotificationsScreen(
     showBackground = true,
     widthDp = 320,
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "NtfsCardPreview"
+    name = "Night Mode"
 )
 @Preview(showBackground = true, widthDp = 320)
 @Composable

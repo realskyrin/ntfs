@@ -36,25 +36,7 @@ data class OngoingNotification(
     var recordAt: Date?,                        // 通知录入时间
     @ColumnInfo(name = "update_at")
     var updateAt: Date?,                        // 通知更新时间
-) {
-    companion object {
-        fun areTheSame(
-            left: OngoingNotification,
-            right: OngoingNotification,
-        ): Boolean {
-            return right.uid == left.uid
-        }
-
-        fun areContentsTheSame(
-            left: OngoingNotification,
-            right: OngoingNotification,
-        ): Boolean {
-            return right.title == left.title
-                    && right.text == left.text
-                    && right.recordAt == left.recordAt
-        }
-    }
-}
+)
 
 class DateConvert {
     @TypeConverter
